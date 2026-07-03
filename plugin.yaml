@@ -1,7 +1,7 @@
 schema_version: "1.0"
 id: op-chatplus
 name: "OP ChatPlus"
-version: "0.1.0"
+version: "0.2.0"
 description: "Interface de Chat estruturado para qualquer agente do EvoNexus"
 author: "ExpertSA Dev"
 license: "MIT"
