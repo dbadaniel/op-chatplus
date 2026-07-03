@@ -1,0 +1,29 @@
+schema_version: "1.0"
+id: op-chatplus
+name: "OP ChatPlus"
+version: "0.1.0"
+description: "Interface de Chat estruturado para qualquer agente do EvoNexus"
+author: "ExpertSA Dev"
+license: "MIT"
+homepage: "https://github.com/expertsa-dev/op-chatplus"
+min_evonexus_version: "0.33.0"
+tier: essential
+
+capabilities: []
+
+ui_entry_points:
+  sidebar_groups:
+    - id: op-chatplus
+      label: "OP ChatPlus"
+      position: "after:operations"
+      order: 10
+
+  pages:
+    - id: chat
+      label: "ChatPlus"
+      path: chat
+      bundle: ui/pages/chat.js
+      custom_element_name: op-chatplus-page
+      sidebar_group: op-chatplus
+      icon: MessageSquare
+      order: 10
