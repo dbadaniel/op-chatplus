@@ -634,41 +634,6 @@ class OPChatPlusPage extends HTMLElement {
     this.activeSessionId = '';
     this.messages = [];
 
-    const agentsListHtml = Object.entries(this.agents)
-      .filter(([slug, meta]) => {
-        const name = (meta.display_name || meta.label || slug).toLowerCase();
-        return name.includes(this.searchQuery.toLowerCase());
-      })
-      .map(([slug, meta]) => {
-        const name = meta.display_name || meta.label || slug;
-        const cmd = meta.command_alias || `/${slug}`;
-        const color = meta.color || 'var(--evo-green, #00FFA7)';
-        const category = meta.category_label || meta.category || 'Geral';
-        const desc = meta.description || 'Nenhuma descrição fornecida.';
-
-        return `
-          <div class="agent-card" data-slug="${slug}">
-            <div class="card-header">
-              <div class="card-avatar" style="border-color: ${color}; color: ${color}">
-                ${name.charAt(0).toUpperCase()}
-              </div>
-              <div class="card-meta">
-                <div class="card-name">${name}</div>
-                <div class="card-category">${category}</div>
-              </div>
-            </div>
-            <p class="card-desc">${desc}</p>
-            <div class="card-footer">
-              <span class="card-cmd">${cmd}</span>
-              <span class="card-action">
-                Abrir Chat
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-              </span>
-            </div>
-          </div>
-        `;
-      }).join('');
-
     this.wrapperEl.innerHTML = `
       <div class="agents-view">
         <div class="agents-header">
@@ -681,24 +646,64 @@ class OPChatPlusPage extends HTMLElement {
             <input type="text" class="search-input" id="searchInput" placeholder="Pesquisar agentes..." value="${this.searchQuery}">
           </div>
         </div>
-        <div class="agents-grid">
-          ${agentsListHtml || `<div style="color: var(--text-muted); grid-column: 1/-1; text-align: center; padding: 40px;">Nenhum agente encontrado.</div>`}
-        </div>
+        <div class="agents-grid" id="agentsGrid"></div>
       </div>
     `;
 
-    // Bind events
-    this.querySelectorAll('.agent-card').forEach(card => {
-      card.addEventListener('click', () => {
-        this.selectAgent(card.dataset.slug);
-      });
-    });
+    this.renderAgentsGrid();
 
     const searchInput = this.querySelector('#searchInput');
     searchInput.addEventListener('input', (e) => {
       this.searchQuery = e.target.value;
-      this.showAgentsView();
-      this.querySelector('#searchInput').focus();
+      this.renderAgentsGrid();
+    });
+  }
+
+  renderAgentsGrid() {
+    const gridEl = this.querySelector('#agentsGrid');
+    if (!gridEl) return;
+    
+    const filtered = Object.entries(this.agents)
+      .filter(([slug, meta]) => {
+        const name = (meta.display_name || meta.label || slug).toLowerCase();
+        return name.includes(this.searchQuery.toLowerCase());
+      });
+
+    gridEl.innerHTML = filtered.map(([slug, meta]) => {
+      const name = meta.display_name || meta.label || slug;
+      const cmd = meta.command_alias || `/${slug}`;
+      const color = meta.color || 'var(--evo-green, #00FFA7)';
+      const category = meta.category_label || meta.category || 'Geral';
+      const desc = meta.description || 'Nenhuma descrição fornecida.';
+
+      return `
+        <div class="agent-card" data-slug="${slug}">
+          <div class="card-header">
+            <div class="card-avatar" style="border-color: ${color}; color: ${color}">
+              ${name.charAt(0).toUpperCase()}
+            </div>
+            <div class="card-meta">
+              <div class="card-name">${name}</div>
+              <div class="card-category">${category}</div>
+            </div>
+          </div>
+          <p class="card-desc">${desc}</p>
+          <div class="card-footer">
+            <span class="card-cmd">${cmd}</span>
+            <span class="card-action">
+              Abrir Chat
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            </span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Bind click events to cards
+    gridEl.querySelectorAll('.agent-card').forEach(card => {
+      card.addEventListener('click', () => {
+        this.selectAgent(card.dataset.slug);
+      });
     });
   }
 
